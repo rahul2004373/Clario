@@ -1,0 +1,23 @@
+# Root level ignores
+*.zip
+*.tar
+*.gz
+*.rar
+
+# Dependencies & Local Secrets (fallback)
+node_modules/
+.env
+.env.local
+*.env
+
+# IDE / Editor configurations
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Sub-directory build ignore fallbacks
+**/node_modules/
+**/dist/
+**/build/
+**/uploads/

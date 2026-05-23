@@ -1,0 +1,120 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 252 20% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 252 20% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 252 20% 11%;
+
+    --primary: 275 100% 61%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 270 40% 97%;
+    --secondary-foreground: 252 20% 11%;
+
+    --muted: 260 24% 96%;
+    --muted-foreground: 255 10% 45%;
+
+    --accent: 274 100% 97%;
+    --accent-foreground: 275 72% 36%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 260 18% 90%;
+    --input: 260 18% 90%;
+    --ring: 275 100% 61%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 270 40% 98%;
+    --sidebar-foreground: 252 20% 16%;
+    --sidebar-primary: 275 100% 61%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 274 100% 96%;
+    --sidebar-accent-foreground: 275 72% 36%;
+    --sidebar-border: 260 18% 90%;
+    --sidebar-ring: 275 100% 61%;
+
+    --chart-1: 275 100% 61%;
+    --chart-2: 252 83% 57%;
+    --chart-3: 291 64% 42%;
+    --chart-4: 232 91% 67%;
+    --chart-5: 262 83% 58%;
+  }
+
+  .dark {
+    --background: 240 18% 10%;
+    --foreground: 0 0% 98%;
+
+    --card: 240 16% 13%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 240 16% 13%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 270 91% 75%;
+    --primary-foreground: 252 30% 10%;
+
+    --secondary: 240 14% 18%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 240 14% 18%;
+    --muted-foreground: 245 10% 68%;
+
+    --accent: 258 24% 18%;
+    --accent-foreground: 270 91% 75%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 240 12% 22%;
+    --input: 240 12% 22%;
+    --ring: 270 91% 75%;
+
+    --sidebar-background: 240 18% 9%;
+    --sidebar-foreground: 0 0% 96%;
+    --sidebar-primary: 270 91% 75%;
+    --sidebar-primary-foreground: 252 30% 10%;
+    --sidebar-accent: 258 24% 18%;
+    --sidebar-accent-foreground: 270 91% 75%;
+    --sidebar-border: 240 12% 22%;
+    --sidebar-ring: 270 91% 75%;
+
+    --chart-1: 270 91% 75%;
+    --chart-2: 252 83% 67%;
+    --chart-3: 291 70% 60%;
+    --chart-4: 232 91% 72%;
+    --chart-5: 262 83% 68%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+
+  #root {
+    @apply min-h-screen bg-background;
+  }
+
+  ::selection {
+    @apply bg-primary/20 text-foreground;
+  }
+}

@@ -1,0 +1,151 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String         @id // This should match Supabase Auth UID
+  email        String         @unique
+  name         String?
+  workspaces   Workspace[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+}
+
+model Workspace {
+  id           String         @id @default(uuid())
+  name         String
+  ownerId      String
+  owner        User           @relation(fields: [ownerId], references: [id])
+  chatbots     Chatbot[]
+  sources      Source[]
+  apiKeys      ApiKey[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+}
+
+model ApiKey {
+  id          String    @id @default(uuid())
+  key         String    @unique // Encrypted key
+  name        String
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+  lastUsedAt  DateTime?
+}
+
+model Chatbot {
+  id             String         @id @default(uuid())
+  name           String
+  workspaceId    String
+  workspace      Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  systemPrompt   String?        @db.Text
+  sourceIds      String[]       @default([]) 
+  chatbotSources ChatbotSource[]
+  conversations  Conversation[]
+  widgetSetting  WidgetSetting?
+  telegramSetting TelegramSetting?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+model Conversation {
+  id             String   @id @default(uuid())
+  title          String?
+  status         String   @default("active") // active | inactive | closed
+  channel        String   @default("playground") // playground | widget | api | telegram
+  chatbotId      String
+  chatbot        Chatbot  @relation(fields: [chatbotId], references: [id], onDelete: Cascade)
+  userId         String?  // Optional: for logged in users in playground
+  visitorId      String?  // Optional: for widget visitors
+  visitor        Visitor? @relation(fields: [visitorId], references: [id], onDelete: Cascade)
+  telegramChatId String?  // Optional: for telegram channel users
+  messages       Message[]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Message {
+  id             String       @id @default(uuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role           String       // user | assistant | system
+  content        String       @db.Text
+  citations      Json?        // To store source snippets used
+  createdAt      DateTime     @default(now())
+}
+
+model Source {
+  id             String    @id @default(uuid())
+  name           String    // original filename
+  type           String    // pdf | docx | txt
+  status         String    @default("PENDING")
+  rawContentUrl  String?   // S3 URL
+  fileSize       Int?
+  mimeType       String?
+  chunkCount     Int?
+  errorMsg       String?
+  syncedAt       DateTime?
+  workspaceId    String
+  workspace      Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  chatbotSources ChatbotSource[]
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model ChatbotSource {
+  id        String   @id @default(uuid())
+  chatbotId String
+  sourceId  String
+  chatbot   Chatbot  @relation(fields: [chatbotId], references: [id], onDelete: Cascade)
+  source    Source   @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([chatbotId, sourceId])
+}
+
+model WidgetSetting {
+  id             String         @id @default(uuid())
+  widgetToken    String         @unique @default(uuid())
+  chatbotId      String         @unique
+  chatbot        Chatbot        @relation(fields: [chatbotId], references: [id], onDelete: Cascade)
+  allowedDomains String[]       @default([])
+  welcomeMessage String         @default("Hello! How can I help you today?")
+  themeConfig    Json?
+  isActive       Boolean        @default(true)
+  visitors       Visitor[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+model Visitor {
+  id            String         @id @default(uuid())
+  widgetToken   String
+  widget        WidgetSetting  @relation(fields: [widgetToken], references: [widgetToken], onDelete: Cascade)
+  externalId    String?        // For identified users on client site
+  name          String?
+  email         String?
+  metadata      Json?
+  conversations Conversation[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@index([widgetToken, externalId])
+}
+
+model TelegramSetting {
+  id          String   @id @default(uuid())
+  chatbotId   String   @unique
+  chatbot     Chatbot  @relation(fields: [chatbotId], references: [id], onDelete: Cascade)
+  botToken    String   @unique // Encrypted Telegram Bot Token
+  botUsername String   
+  secretToken String   @default(uuid()) // Used to verify incoming webhooks from Telegram
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
