@@ -5,8 +5,11 @@ const ALLOWED_MIME = [
     'application/pdf',
     'text/plain',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'application/vnd.ms-excel',
+    'text/csv',
 ];
-const ALLOWED_EXT = ['.pdf', '.txt', '.docx'];
+const ALLOWED_EXT = ['.pdf', '.txt', '.docx', '.xlsx', '.xls', '.csv'];
 
 const fileFilter = (_req: Request, file: Express.Multer.File, cb: FileFilterCallback) => {
     const ext = '.' + (file.originalname.split('.').pop()?.toLowerCase() ?? '');
