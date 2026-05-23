@@ -145,12 +145,14 @@ export default function WidgetTab({ chatbotId, workspaceId }: WidgetTabProps) {
 
   const widgetToken =
     settings?.widgetToken || "••••••••-••••-••••-••••-••••••••••••";
-  const apiBaseUrl = import.meta.env.VITE_API_URL
-    ? `${import.meta.env.VITE_API_URL}/api/v1`
-    : `${window.location.protocol}//${window.location.host.replace(
-        ":5173",
-        ":3000"
-      )}/api/v1`;
+  const apiBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? (import.meta.env.VITE_API_URL
+      ? `${import.meta.env.VITE_API_URL}/api/v1`
+      : `${window.location.protocol}//${window.location.host.replace(
+          ":5173",
+          ":3000"
+        )}/api/v1`)
+    : `${window.location.protocol}//${window.location.host}/api/v1`;
   const frontendUrl = import.meta.env.VITE_FRONTEND_URL || `${window.location.protocol}//${window.location.host}`;
   const widgetClientUrl = `${frontendUrl}/widget/${widgetToken}`;
   const embedScriptUrl = `${frontendUrl}/widget-loader.js`;
