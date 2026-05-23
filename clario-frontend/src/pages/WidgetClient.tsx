@@ -202,21 +202,6 @@ export default function WidgetClient() {
               )}>
                 <p className="whitespace-pre-wrap leading-relaxed">{msg.content}</p>
               </div>
-
-              {/* Citations block */}
-              {msg.citations && msg.citations.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 pt-1">
-                  {msg.citations.map((cit, idx) => (
-                    <span 
-                      key={idx}
-                      className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-muted/80 text-[10px] border border-border text-muted-foreground"
-                    >
-                      <FileText className="w-2.5 h-2.5" />
-                      <span className="truncate max-w-[90px]">{cit.title}</span>
-                    </span>
-                  ))}
-                </div>
-              )}
             </div>
           </div>
         ))}

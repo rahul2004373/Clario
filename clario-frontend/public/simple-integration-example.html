@@ -52,19 +52,31 @@
 
   <!-- 
     ========================================================================
-    CLAIRO EMBEDDABLE CHAT WIDGET
+    CLAIRO EMBEDDABLE CHAT WIDGET (DYNAMICALLY BOOTSTRAPPED)
     ========================================================================
-    Instructions:
-    1. Replace 'YOUR_WIDGET_TOKEN' inside data-widget-token below with the token 
+    Instructions for testing:
+    1. Simply open: http://localhost:5173/simple-integration-example.html?token=YOUR_WIDGET_TOKEN
+    2. Replace 'YOUR_WIDGET_TOKEN' in the URL query parameters with the token 
        obtained from your Clairo Chatbot settings dashboard page.
-    2. Customize colors, greeting texts, widget titles, and screen alignment in 
-       real-time by editing the script data attributes.
   -->
-  <script src="http://localhost:5173/widget-loader.js" data-widget-token="b3bfd697-6f45-41b4-8ec4-16a7e3abacab"
-    data-theme-color="#3b82f6" data-title="Customer Support" data-launcher-text="Chat with us"
-    data-position="bottom-right" data-welcome-message="Hello! Welcome to our website. How can I help you today?"
-    data-border-radius="12px" defer>
-    </script>
+  <script>
+    // Grab the widget token dynamically from the browser address bar query parameter (?token=...)
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token') || 'b3bfd697-6f45-41b4-8ec4-16a7e3abacab';
+
+    const widgetScript = document.createElement('script');
+    widgetScript.src = 'http://localhost:5173/widget-loader.js';
+    widgetScript.setAttribute('data-widget-token', token);
+    widgetScript.setAttribute('data-theme-color', '#3b82f6');
+    widgetScript.setAttribute('data-title', 'Customer Support');
+    widgetScript.setAttribute('data-launcher-text', 'Chat with us');
+    widgetScript.setAttribute('data-position', 'bottom-right');
+    widgetScript.setAttribute('data-welcome-message', 'Hello! Welcome to our website. How can I help you today?');
+    widgetScript.setAttribute('data-border-radius', '12px');
+    widgetScript.defer = true;
+
+    document.body.appendChild(widgetScript);
+  </script>
 
 </body>
 
