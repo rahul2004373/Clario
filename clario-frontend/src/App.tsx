@@ -40,24 +40,26 @@ const FullScreenLoader = () => {
   );
 };
 
+import React from 'react';
+
 // Protected Route Wrapper
-const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, isLoading } = useAuth();
 
   if (isLoading) return <FullScreenLoader />;
   if (!user) return <Navigate to="/login" replace />;
 
-  return children;
+  return <>{children}</>;
 };
 
 // Public Route Wrapper
-const PublicRoute = ({ children }: { children: JSX.Element }) => {
+const PublicRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, isLoading } = useAuth();
 
   if (isLoading) return <FullScreenLoader />;
   if (user) return <Navigate to="/dashboard" replace />;
 
-  return children;
+  return <>{children}</>;
 };
 
 export default function App() {
