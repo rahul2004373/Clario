@@ -8,5 +8,8 @@ const router = Router({ mergeParams: true });
 router.use(authMiddleware);
 
 router.get('/', SourceController.getSources);
+router.post('/', SourceController.createSource);
+router.get('/:sourceId/preview', SourceController.getSourcePreview);
+router.delete('/:sourceId', SourceController.deleteSource);
 
 export default router;

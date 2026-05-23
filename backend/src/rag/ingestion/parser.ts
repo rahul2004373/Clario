@@ -2,6 +2,7 @@
 import { parsePdf } from './parser/pdf';
 import { parseDoc } from './parser/doc';
 import { parseText, parseUrl } from './parser/text';
+import { parseExcel } from './parser/excel';
 import type { SourceType } from '../../types';
 
 export interface ParseInput {
@@ -23,6 +24,9 @@ export async function parseSource(source: ParseInput): Promise<string> {
 
         case 'url':
             return parseUrl(source.rawContentUrl!);
+
+        case 'xlsx':
+            return parseExcel(source.rawContentUrl!);
 
         default:
             throw new Error(`Unsupported source type: ${source.type}`);

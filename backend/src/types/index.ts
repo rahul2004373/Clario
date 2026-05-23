@@ -1,4 +1,4 @@
-export type SourceType = 'pdf' | 'docx' | 'text' | 'url';
+export type SourceType = 'pdf' | 'docx' | 'text' | 'url' | 'xlsx';
 export type SourceStatus = 'pending' | 'processing' | 'ready' | 'failed' | 'cancelled';
 export type Role = 'user' | 'assistant' | 'system';
 

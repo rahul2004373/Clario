@@ -11,6 +11,9 @@ const MIME_TO_TYPE: Record<string, SourceType> = {
     'application/pdf': 'pdf',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
     'text/plain': 'text',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xlsx',
+    'application/vnd.ms-excel': 'xlsx',
+    'text/csv': 'xlsx',
 };
 
 export class UploadController {
