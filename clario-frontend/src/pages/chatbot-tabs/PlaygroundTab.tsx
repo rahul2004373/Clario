@@ -13,6 +13,7 @@ import api from "@/api/axios";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { FormattedMessage } from "@/components/FormattedMessage";
 
 interface Message {
   id: string;
@@ -311,7 +312,11 @@ export default function PlaygroundTab({
                         : "bg-[#15151b] text-white"
                     )}
                   >
-                    {msg.content}
+                    {msg.role === "user" ? (
+                      msg.content
+                    ) : (
+                      <FormattedMessage content={msg.content} />
+                    )}
                   </div>
 
                   {msg.role === "user" && (

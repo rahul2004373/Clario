@@ -4,6 +4,7 @@ import axios from 'axios';
 import { Send, ArrowRight, Bot, X, FileText, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { FormattedMessage } from '@/components/FormattedMessage';
 
 interface Message {
   id: string;
@@ -200,7 +201,11 @@ export default function WidgetClient() {
                   ? "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 border-transparent shadow-sm"
                   : "bg-background text-slate-800 dark:text-slate-200 border-border"
               )}>
-                <p className="whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+                {msg.role === 'user' ? (
+                  <p className="whitespace-pre-wrap leading-relaxed text-white dark:text-slate-900">{msg.content}</p>
+                ) : (
+                  <FormattedMessage content={msg.content} />
+                )}
               </div>
             </div>
           </div>

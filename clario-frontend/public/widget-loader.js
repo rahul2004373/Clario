@@ -1,10 +1,10 @@
-(function() {
+(function () {
   // Prevent duplicate script execution
   if (window.__ClairoWidgetLoaded) return;
   window.__ClairoWidgetLoaded = true;
 
   // 1. Resolve Script Tag and Attributes
-  const currentScript = document.currentScript || (function() {
+  const currentScript = document.currentScript || (function () {
     const scripts = document.getElementsByTagName('script');
     return scripts[scripts.length - 1];
   })();
@@ -17,7 +17,7 @@
 
   // Default Bases mapping (fall back to localhost for local testing)
   const apiBase = currentScript.getAttribute('data-api-base') || 'http://localhost:3000/api/v1';
-  
+
   let frameBase = currentScript.getAttribute('data-frame-base');
   if (!frameBase) {
     frameBase = (window.location.origin && window.location.origin !== 'null' && window.location.origin.startsWith('http'))
@@ -104,12 +104,12 @@
   // 4. Create iframe Wrapper & iframe
   const frameWrapper = document.createElement('div');
   frameWrapper.className = 'clairo-iframe-wrapper';
-  
+
   const iframe = document.createElement('iframe');
   iframe.className = 'clairo-iframe';
   iframe.src = `${frameBase}/widget/${token}`;
   iframe.allow = "clipboard-write";
-  
+
   frameWrapper.appendChild(iframe);
   container.appendChild(frameWrapper);
 
@@ -155,13 +155,13 @@
   launcher.addEventListener('click', toggleWidget);
 
   // 7. PostMessage Handler for sync & control
-  window.addEventListener('message', function(event) {
+  window.addEventListener('message', function (event) {
     if (event.origin !== frameBase) return;
 
     const data = event.data;
     if (!data || typeof data !== 'object') return;
 
-    switch(data.type) {
+    switch (data.type) {
       case 'CLAIRO_IFRAME_READY':
         // Once the iframe is mounted, sync overrides
         iframe.contentWindow.postMessage({
