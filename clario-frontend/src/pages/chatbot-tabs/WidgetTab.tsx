@@ -145,12 +145,15 @@ export default function WidgetTab({ chatbotId, workspaceId }: WidgetTabProps) {
 
   const widgetToken =
     settings?.widgetToken || "••••••••-••••-••••-••••-••••••••••••";
-  const apiBaseUrl = `${window.location.protocol}//${window.location.host.replace(
-    ":5173",
-    ":3000"
-  )}/api/v1`;
-  const widgetClientUrl = `${window.location.protocol}//${window.location.host}/widget/${widgetToken}`;
-  const embedScriptUrl = `${window.location.protocol}//${window.location.host}/widget-loader.js`;
+  const apiBaseUrl = import.meta.env.VITE_API_URL
+    ? `${import.meta.env.VITE_API_URL}/api/v1`
+    : `${window.location.protocol}//${window.location.host.replace(
+        ":5173",
+        ":3000"
+      )}/api/v1`;
+  const frontendUrl = import.meta.env.VITE_FRONTEND_URL || `${window.location.protocol}//${window.location.host}`;
+  const widgetClientUrl = `${frontendUrl}/widget/${widgetToken}`;
+  const embedScriptUrl = `${frontendUrl}/widget-loader.js`;
 
   const widgetRoutesList = [
     { method: "POST", path: `/widget/${widgetToken}/session`, purpose: "Initialize visitor session" },

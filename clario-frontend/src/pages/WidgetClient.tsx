@@ -21,7 +21,9 @@ export default function WidgetClient() {
     themeColor: '#3b82f6',
     title: 'Support Chat',
     welcomeMessage: 'Hello! How can I help you today?',
-    apiBase: 'http://localhost:3000/api/v1',
+    apiBase: import.meta.env.VITE_API_URL
+      ? `${import.meta.env.VITE_API_URL}/api/v1`
+      : 'http://localhost:3000/api/v1',
     borderRadius: '12px'
   });
 

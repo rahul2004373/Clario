@@ -12,8 +12,25 @@ dotenv.config();
 
 const app: Application = express();
 
-// Global Middleware
-app.use(cors());
+// Global Middleware with dynamic CORS supporting all origins & credentials
+const allowedOrigins = process.env.FRONTEND_URL 
+  ? process.env.FRONTEND_URL.split(',').map(o => o.trim()) 
+  : [];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.length > 0 && !allowedOrigins.includes('*')) {
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        return callback(null, true);
+      }
+    }
+    callback(null, true);
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'X-Widget-Token']
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
