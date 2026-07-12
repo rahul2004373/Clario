@@ -753,7 +753,7 @@ function DemoVideo() {
     <div className="relative flex aspect-video items-center justify-center bg-[#0A0A0A] overflow-hidden rounded-b-xl">
       <video
         ref={videoRef}
-        src="/videos/demo.mp4"
+        src="https://res.cloudinary.com/dwuzykbte/video/upload/v1783843018/Rahul_Kanojia_s_Video_-_Jul_12_2026_1_cpx05e.mp4"
         controls
         muted
         loop
