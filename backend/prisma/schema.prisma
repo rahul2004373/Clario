@@ -1,0 +1,688 @@
+
+generator client {
+  provider = "prisma-client-js"
+  engineType = "library"
+}
+
+datasource db {
+  provider  = "postgresql"
+}
+
+
+enum WorkspacePlan {
+  FREE        // 1 workspace, 2 chatbots, 100 msg/month
+  HOBBY       // 1 workspace, 5 chatbots, 2000 msg/month
+  GROWTH      // 3 workspaces, 10 chatbots, 10000 msg/month
+  UNLIMITED   // unlimited workspaces + chatbots (agencies)
+  ENTERPRISE  // custom
+}
+
+enum WorkspaceMemberRole {
+  OWNER
+  ADMIN
+  VIEWER
+}
+
+enum BusinessType {
+  GENERAL
+  ECOMMERCE
+  SAAS
+  HEALTHCARE
+  EDUCATION
+  REAL_ESTATE
+  LEGAL
+  CUSTOM
+}
+
+enum AgentRole {
+  SUPPORT
+  SALES
+  INTERNAL
+  DOCS
+  BOOKING
+  CUSTOM
+}
+
+enum AgentTone {
+  FRIENDLY
+  PROFESSIONAL
+  CARING
+  TECHNICAL
+  FORMAL
+}
+
+enum SourceType {
+  PDF
+  DOCX
+  XLSX
+  CSV
+  TXT
+  URL
+  YOUTUBE
+  NOTION
+  SITEMAP
+  PLAIN_TEXT
+}
+
+enum IngestionStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  REINGESTING
+}
+
+enum AccessLevel {
+  PUBLIC_WEB
+  INTERNAL_TOOL
+  THIRD_PARTY
+  PRIVATE
+}
+
+enum ToolAuthType {
+  NONE
+  BEARER
+  API_KEY
+  BASIC
+  CUSTOM_HEADER
+}
+
+enum VerificationType {
+  NONE
+  EMAIL_OTP
+  PHONE_OTP
+  JWT_PASSTHROUGH
+  KNOWLEDGE_BASED
+}
+
+enum EscalationMethod {
+  EMAIL
+  SLACK
+  ZENDESK_TICKET
+  FRESHDESK_TICKET
+  WEBHOOK
+  PHONE_PROMPT
+  DISABLED
+}
+
+enum EscalationTrigger {
+  LOW_CONFIDENCE
+  USER_REQUESTED
+  TURN_LIMIT_REACHED
+  SENSITIVE_TOPIC
+  TOOL_FAILURE
+  NO_CONTEXT_FOUND
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+  TOOL
+}
+
+enum FieldType {
+  TEXT
+  EMAIL
+  PHONE
+  NUMBER
+  SELECT
+  DATE
+  BOOLEAN
+}
+
+enum ApiKeyScope {
+  FULL
+  READ_ONLY
+  WIDGET_ONLY
+}
+
+enum OnboardingStep {
+  WORKSPACE_CREATED
+  INDUSTRY_SELECTED
+  AGENT_CREATED
+  DOCUMENT_UPLOADED
+  TOOL_CONFIGURED
+  PLAYGROUND_TESTED
+  WIDGET_DEPLOYED
+}
+
+enum WidgetTheme {
+  LIGHT
+  DARK
+}
+
+enum BubbleAlignment {
+  BOTTOM_RIGHT
+  BOTTOM_LEFT
+}
+
+// ============================================================
+// 1. USER
+// ============================================================
+
+model User {
+  id        String   @id          // Clerk user ID
+  email     String   @unique
+  name      String?
+  avatarUrl String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  workspaceMembers WorkspaceMember[]
+  apiKeys          ApiKey[]
+
+  @@map("users")
+}
+
+// ============================================================
+// 2. WORKSPACE (Tenant)
+// ============================================================
+
+model Workspace {
+  id           String        @id @default(cuid())
+  name         String
+  slug         String        @unique   // used in URLs
+  logoUrl      String?
+  website      String?
+  businessType BusinessType  @default(GENERAL)
+  plan         WorkspacePlan @default(FREE)
+
+  // Plan limits (denormalised for fast checks — set on plan change)
+  maxChatbots        Int @default(2)
+  msgLimitMonth      Int @default(100)
+  messagesUsedMonth  Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members    WorkspaceMember[]
+  chatbots   Chatbot[]
+  apiKeys    ApiKey[]
+  onboarding WorkspaceOnboarding?
+  usageEvents UsageEvent[]
+
+  @@map("workspaces")
+}
+
+// ============================================================
+// 3. WORKSPACE MEMBER
+// ============================================================
+
+model WorkspaceMember {
+  id          String              @id @default(cuid())
+  workspaceId String
+  userId      String
+  role        WorkspaceMemberRole @default(VIEWER)
+  joinedAt    DateTime            @default(now())
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, userId])
+  @@map("workspace_members")
+}
+
+// ============================================================
+// 4. WORKSPACE ONBOARDING
+// ============================================================
+
+model WorkspaceOnboarding {
+  id             String          @id @default(cuid())
+  workspaceId    String          @unique
+  completedSteps OnboardingStep[]
+  isComplete     Boolean         @default(false)
+  completedAt    DateTime?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@map("workspace_onboarding")
+}
+
+// ============================================================
+// 5. API KEYS
+// ============================================================
+
+model ApiKey {
+  id          String      @id @default(cuid())
+  workspaceId String
+  userId      String
+  name        String
+  keyHash     String      @unique  // bcrypt — never store raw
+  keyPrefix   String               // "clr_live_abc..." shown in UI
+  scope       ApiKeyScope @default(FULL)
+  lastUsedAt  DateTime?
+  expiresAt   DateTime?
+  isActive    Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id])
+
+  @@map("api_keys")
+}
+
+// ============================================================
+// 6. CHATBOT (Agent)
+// ============================================================
+
+model Chatbot {
+  id          String       @id @default(cuid())
+  workspaceId String
+  name        String
+  description String?
+  agentRole   AgentRole    @default(SUPPORT)
+  businessType BusinessType @default(GENERAL)
+
+  // Prompt
+  systemPrompt  String @db.Text
+  promptVersion Int    @default(1)  // bump to invalidate Redis cache
+
+  // Persona
+  agentTone      AgentTone @default(FRIENDLY)
+  avatarUrl      String?
+  welcomeMessage String    @default("Hi! How can I help you today?")
+  fallbackMessage String   @default("I'm sorry, I couldn't find an answer. Let me connect you with a human agent.")
+
+  isActive    Boolean @default(true)
+  isPublished Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  workspace        Workspace         @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  sources          Source[]          // each chatbot owns its own sources
+  toolConfigs      ToolConfig[]
+  formFields       FormField[]
+  escalationConfig EscalationConfig?
+  widget           ChatWidget?
+  conversations    Conversation[]
+  analytics        ConversationAnalytics[]
+
+  @@map("chatbots")
+}
+
+// ============================================================
+// 6.5. CHAT WIDGET
+// ============================================================
+
+model ChatWidget {
+  id                 String   @id @default(cuid())
+  chatbotId          String   @unique
+  chatbot            Chatbot  @relation(fields: [chatbotId], references: [id], onDelete: Cascade)
+
+  // Activation
+  isActive           Boolean  @default(false)
+
+  // Content
+  displayName        String?
+  initialMessages    String[]
+  messagePlaceholder String?  @default("Type a message...")
+  footerText         String?
+
+  // Style
+  theme              WidgetTheme @default(LIGHT)
+  profilePictureUrl  String?
+  chatIconUrl        String?
+  primaryColor       String   @default("#000000")
+  bubbleColor        String   @default("#000000")
+  bubbleAlignment    BubbleAlignment @default(BOTTOM_RIGHT)
+
+  // Embed identity
+  embedPublicKey     String   @unique @default(cuid())
+  
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@map("chat_widgets")
+}
+
+// ============================================================
+// 7. SOURCES (owned per chatbot — fully segregated)
+// ============================================================
+
+model Source {
+  id        String     @id @default(cuid())
+  chatbotId String                         // source belongs to ONE chatbot
+  name      String
+  type      SourceType
+
+  // File storage
+  fileUrl   String?    // S3 URL for uploaded files
+  fileSize  Int?       // bytes
+  pageCount Int?
+
+  // URL sources
+  sourceUrl   String?
+  crawlDepth  Int?    @default(1)
+
+  // Ingestion state — tracked here, job details in Redis/BullMQ
+  ingestionStatus IngestionStatus @default(PENDING)
+  ingestionError  String?
+  chunkCount      Int             @default(0)
+  tokenCount      Int             @default(0)
+  lastIngestedAt  DateTime?
+
+  // Access control per document
+  accessLevels AccessLevel[] @default([PUBLIC_WEB])
+
+  // Auto re-ingestion for live URL/Notion sources
+  autoReIngest       Boolean @default(false)
+  reIngestEveryHours Int?    // 24 = daily, 168 = weekly
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  chatbot  Chatbot         @relation(fields: [chatbotId], references: [id], onDelete: Cascade)
+  metadata SourceMetadata?
+  jobs     IngestionJob[]
+
+  @@index([chatbotId])
+  @@map("sources")
+}
+
+model SourceMetadata {
+  id          String    @id @default(cuid())
+  sourceId    String    @unique
+  description String?
+  tags        String[]
+  version     String?
+  owner       String?
+  validUntil  DateTime? // show stale warning badge after this date
+  externalUrl String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  source Source @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+
+  @@map("source_metadata")
+}
+
+// ============================================================
+// 7.5. INGESTION JOBS (Postgres-based async queue)
+// ============================================================
+
+model IngestionJob {
+  id          String          @id @default(cuid())
+  sourceId    String
+  status      IngestionStatus @default(PENDING)
+  attempts    Int             @default(0)
+  error       String?         @db.Text
+  
+  createdAt   DateTime        @default(now())
+  startedAt   DateTime?
+  completedAt DateTime?
+  updatedAt   DateTime        @updatedAt
+
+  source Source @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@map("ingestion_jobs")
+}
+
+// ============================================================
+// 8. TOOLS (Custom Tool Builder)
+// ============================================================
+
+model ToolConfig {
+  id        String @id @default(cuid())
+  chatbotId String
+
+  // Tool identity
+  toolKey     String  // snake_case, used by LLM: "order_status_lookup"
+  toolName    String  // display: "Order Status"
+  description String  @db.Text  // LLM reads this to decide when to call
+  category    String? // "orders", "appointments", "billing"
+
+  // API config
+  endpoint      String         // https://api.store.com/orders/{order_id}
+  method        String         @default("GET")
+  authType      ToolAuthType   @default(BEARER)
+  authValue     String?        // encrypted
+  customHeaders Json?          // { "X-Store-Id": "123" }
+
+  // Parameters — valid JSON Schema, passed directly to Gemini function calling
+  parameters Json
+
+  // Response mapping — tells LLM what each API response field means
+  responseMapping Json? // { "status": "Order Status", "eta": "Delivery Date" }
+
+  // Identity verification before executing this tool
+  requiresVerification Boolean          @default(false)
+  verificationType     VerificationType @default(NONE)
+
+  isEnabled Boolean @default(false)
+  isPreset  Boolean @default(false) // came from vertical template
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  chatbot Chatbot @relation(fields: [chatbotId], references: [id], onDelete: Cascade)
+
+  @@unique([chatbotId, toolKey])
+  @@map("tool_configs")
+}
+
+// ============================================================
+// 9. PRE-CHAT FORM FIELDS
+// ============================================================
+
+model FormField {
+  id          String    @id @default(cuid())
+  chatbotId   String
+  fieldKey    String    // "order_id", "email"
+  label       String    // "Order ID"
+  fieldType   FieldType @default(TEXT)
+  placeholder String?
+  isRequired  Boolean   @default(false)
+  order       Int       @default(0)
+  options     String[]  // for SELECT type
+  createdAt   DateTime  @default(now())
+
+  chatbot Chatbot @relation(fields: [chatbotId], references: [id], onDelete: Cascade)
+
+  @@unique([chatbotId, fieldKey])
+  @@map("form_fields")
+}
+
+// ============================================================
+// 10. ESCALATION CONFIG
+// ============================================================
+
+model EscalationConfig {
+  id        String @id @default(cuid())
+  chatbotId String @unique
+
+  triggers               EscalationTrigger[]
+  method                 EscalationMethod    @default(EMAIL)
+  escalationMessage      String?
+  maxTurnsBeforeEscalate Int                 @default(3)
+
+  // Email
+  emailTo              String?
+  emailSubjectTemplate String?
+
+  // Slack
+  slackWebhookUrl String?
+  slackChannel    String?
+
+  // Zendesk
+  zendeskApiUrl   String?
+  zendeskApiKey   String?
+  zendeskTagsList String[]
+
+  // Freshdesk
+  freshdeskApiUrl String?
+  freshdeskApiKey String?
+
+  // Custom webhook
+  webhookUrl    String?
+  webhookSecret String?
+
+  includeTranscript Boolean @default(true)
+  includeSummary    Boolean @default(true)
+  includeUserInfo   Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  chatbot Chatbot @relation(fields: [chatbotId], references: [id], onDelete: Cascade)
+
+  @@map("escalation_configs")
+}
+
+// ============================================================
+// 11. CONVERSATIONS & MESSAGES
+// ============================================================
+
+model Conversation {
+  id        String @id @default(cuid())
+  chatbotId String
+  sessionId String @unique // Redis session key
+
+  // User identity (one will be populated)
+  userId      String? // internal authenticated user (JWT)
+  userEmail   String? // verified via OTP
+  userPhone   String?
+  fingerprint String? // anonymous browser fingerprint
+  userName    String?
+  embedPublicKey String? // track if created via widget
+
+  // Pre-chat form data collected before conversation
+  formData Json? // { order_id: "ORD123", email: "..." }
+
+  // Status
+  isActive           Boolean   @default(true)
+  isEscalated        Boolean   @default(false)
+  escalatedAt        DateTime?
+  escalationTicketId String?
+
+  // Metrics
+  messageCount Int       @default(0)
+  turnCount    Int       @default(0)
+  resolvedAt   DateTime?
+
+  startedAt      DateTime @default(now())
+  lastActivityAt DateTime @default(now())
+  endedAt        DateTime?
+
+  chatbot  Chatbot   @relation(fields: [chatbotId], references: [id], onDelete: Cascade)
+  messages Message[]
+
+  @@index([chatbotId, startedAt])
+  @@map("conversations")
+}
+
+model Message {
+  id             String      @id @default(cuid())
+  conversationId String
+  role           MessageRole
+
+  // Content
+  content String @db.Text
+
+  // RAG metadata (assistant messages only)
+  retrievedChunkIds  String[]
+  avgRetrievalScore  Float?
+  guardrailPassed    Boolean?
+  guardrailScore     Float?
+
+  // Tool calls made during this turn
+  toolCallsMade Json? // [{ toolKey, params, result, latencyMs, verified }]
+
+  // Citations shown to user
+  citations Json? // [{ sourceId, sourceName, chunkIndex, excerpt }]
+
+  // Follow-up suggestions shown below response
+  followUpSuggestions String[]
+
+  // Verification state
+  verificationRequired  Boolean @default(false)
+  verificationCompleted Boolean @default(false)
+
+  // Performance
+  latencyMs        Int?
+  inputTokens      Int?
+  outputTokens     Int?
+  estimatedCostUsd Float?
+
+  // LangSmith trace link
+  langsmithRunId String?
+
+  // User feedback
+  userRating Int? // 1 thumbs up | -1 thumbs down
+
+  createdAt DateTime @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+  @@map("messages")
+}
+
+// ============================================================
+// 12. ANALYTICS (fire-and-forget, separate from Message)
+// ============================================================
+
+model ConversationAnalytics {
+  id             String @id @default(cuid())
+  chatbotId      String
+  workspaceId    String
+  conversationId String
+  messageId      String @unique
+
+  // Query classification
+  questionTopicTag String? // LLM-classified: "order_status", "pricing", "refund"
+
+  // Retrieval quality
+  avgRetrievalScore Float?
+  chunksRetrieved   Int     @default(0)
+  guardrailPassed   Boolean @default(true)
+
+  // Performance
+  responseLatencyMs Int?
+  inputTokens       Int?
+  outputTokens      Int?
+  estimatedCostUsd  Float?
+
+  // Outcome
+  wasToolCall               Boolean @default(false)
+  toolsUsed                 String[]
+  wasEscalated              Boolean @default(false)
+  escalationReason          String?
+  wasVerificationRequired   Boolean @default(false)
+  wasCached                 Boolean @default(false)
+  cacheType                 String? // "exact" | "semantic"
+
+  // User feedback
+  userRating Int?
+
+  createdAt DateTime @default(now())
+
+  chatbot Chatbot @relation(fields: [chatbotId], references: [id], onDelete: Cascade)
+
+  @@index([chatbotId, createdAt])
+  @@index([workspaceId, createdAt])
+  @@index([chatbotId, questionTopicTag])
+  @@map("conversation_analytics")
+}
+
+// ============================================================
+// 13. USAGE EVENTS (billing log — Razorpay plugged in later)
+// ============================================================
+
+model UsageEvent {
+  id          String   @id @default(cuid())
+  workspaceId String
+  eventType   String   // "message" | "tool_call" | "ingestion"
+  chatbotId   String?
+  quantity    Int      @default(1)
+  metadata    Json?
+  createdAt   DateTime @default(now())
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, createdAt])
+  @@map("usage_events")
+}
