@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
-import { syncUser, getStoredTokens } from "@/lib/auth/api";
+import { syncUser, getStoredTokens, storeTokens } from "@/lib/auth/api";
 import { getWorkspaces } from "@/lib/api/workspace";
 import { UnauthorizedError } from "@/lib/api/client";
 import { useUserStore } from "@/store/userStore";
@@ -15,6 +15,17 @@ export default function AuthCallbackPage() {
 
   useEffect(() => {
     async function handleCallback() {
+      const hash = window.location.hash.slice(1);
+      if (hash) {
+        const params = new URLSearchParams(hash);
+        const accessToken = params.get("access_token");
+        const refreshToken = params.get("refresh_token");
+        if (accessToken && refreshToken) {
+          storeTokens({ access_token: accessToken, refresh_token: refreshToken });
+          window.location.hash = "";
+        }
+      }
+
       const tokens = getStoredTokens();
       if (!tokens.accessToken) {
         setError("No session found. Please sign in again.");
