@@ -9,6 +9,16 @@ app.use(requestLogger);
 
 app.use(cors());
 app.use(express.json());
+
+app.get("/health", (req, res) => {
+  res.json({
+    status: "healthy",
+    timestamp: new Date().toISOString(),
+    uptime: `${Math.round(process.uptime())}s`,
+    memoryUsage: `${Math.round(process.memoryUsage().heapUsed / 1024 / 1024)} MB`
+  });
+});
+
 app.use("/api", apiRouter);
 
 app.use((_request, response) => {
