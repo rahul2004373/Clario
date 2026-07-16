@@ -3,7 +3,13 @@
 import { Suspense, useState, useEffect, useCallback, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { ChatWidgetPreview } from "@/components/widget/ChatWidgetPreview";
-import { fetchPublicWidgetConfig, createPublicSession, sendPublicMessageStream, endPublicSession, type PublicWidgetConfig } from "@/lib/api/publicWidget";
+import {
+  fetchPublicWidgetConfig,
+  createPublicSession,
+  sendPublicMessageStream,
+  endPublicSession,
+  type PublicWidgetConfig,
+} from "@/lib/api/publicWidget";
 import { Loader2 } from "lucide-react";
 
 type Message = { role: "USER" | "ASSISTANT"; content: string };
@@ -50,7 +56,9 @@ function WidgetUiPageInner() {
         setLoading(false);
       })
       .catch((err) => {
-        setConfigError(err instanceof Error ? err.message : "Failed to load widget");
+        setConfigError(
+          err instanceof Error ? err.message : "Failed to load widget",
+        );
         setLoading(false);
       });
   }, [key]);
@@ -90,7 +98,10 @@ function WidgetUiPageInner() {
               const updated = [...prev];
               const last = updated[updated.length - 1];
               if (last && last.role === "ASSISTANT") {
-                updated[updated.length - 1] = { ...last, content: last.content + chunk };
+                updated[updated.length - 1] = {
+                  ...last,
+                  content: last.content + chunk,
+                };
               }
               return updated;
             });
@@ -143,7 +154,9 @@ function WidgetUiPageInner() {
   if (configError || !config) {
     return (
       <div className="flex h-screen items-center justify-center bg-transparent">
-        <p className="text-[13px] text-[#A1A1AA]">{configError || "Widget unavailable"}</p>
+        <p className="text-[13px] text-[#A1A1AA]">
+          {configError || "Widget unavailable"}
+        </p>
       </div>
     );
   }

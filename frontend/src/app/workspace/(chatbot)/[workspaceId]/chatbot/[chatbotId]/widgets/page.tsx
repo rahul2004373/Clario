@@ -11,6 +11,7 @@ import { ContentTab } from "@/components/widget/tabs/ContentTab";
 import { StyleTab } from "@/components/widget/tabs/StyleTab";
 import { EmbedTab } from "@/components/widget/tabs/EmbedTab";
 import { Button } from "@/components/ui/button";
+import { WidgetDocsDropdown } from "@/components/widget/WidgetDocsDropdown";
 
 const TABS = [
   { id: "content", label: "Content" },
@@ -90,6 +91,7 @@ export default function WidgetsPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
+          <WidgetDocsDropdown />
           {error && (
             <p className="max-w-[200px] truncate text-[12px] text-[#EF4444]">
               {error}

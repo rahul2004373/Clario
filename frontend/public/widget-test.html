@@ -1,254 +1,253 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Clario Widget Demo</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Clario Widget Demo</title>
 
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: #f8fafc;
-      color: #1f2937;
-      line-height: 1.6;
-    }
-
-    header {
-      background: #111827;
-      color: white;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-
-    .container {
-      width: min(1200px, 92%);
-      margin: auto;
-    }
-
-    nav {
-      height: 72px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .logo {
-      font-size: 22px;
-      font-weight: 700;
-    }
-
-    .nav-links {
-      display: flex;
-      gap: 28px;
-    }
-
-    .nav-links a {
-      text-decoration: none;
-      color: #d1d5db;
-      transition: .25s;
-    }
-
-    .nav-links a:hover {
-      color: white;
-    }
-
-    .hero {
-      padding: 120px 20px;
-      text-align: center;
-      background: linear-gradient(135deg, #111827, #374151);
-      color: white;
-    }
-
-    .hero h1 {
-      font-size: 56px;
-      margin-bottom: 20px;
-    }
-
-    .hero p {
-      max-width: 700px;
-      margin: auto;
-      font-size: 20px;
-      color: #d1d5db;
-    }
-
-    .hero button {
-      margin-top: 35px;
-      padding: 14px 32px;
-      border: none;
-      border-radius: 8px;
-      background: white;
-      color: #111827;
-      font-size: 16px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: .2s;
-    }
-
-    .hero button:hover {
-      transform: translateY(-2px);
-    }
-
-    section {
-      padding: 80px 20px;
-    }
-
-    h2 {
-      text-align: center;
-      margin-bottom: 50px;
-      font-size: 36px;
-    }
-
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 24px;
-    }
-
-    .card {
-      background: white;
-      border-radius: 14px;
-      padding: 28px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.06);
-    }
-
-    .card h3 {
-      margin-bottom: 12px;
-    }
-
-    .card p {
-      color: #6b7280;
-    }
-
-    .about {
-      max-width: 850px;
-      margin: auto;
-      text-align: center;
-      color: #4b5563;
-      font-size: 18px;
-    }
-
-    footer {
-      background: #111827;
-      color: #9ca3af;
-      text-align: center;
-      padding: 40px 20px;
-    }
-
-    @media (max-width:768px) {
-
-      .hero h1 {
-        font-size: 38px;
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
       }
 
-      .hero p {
-        font-size: 17px;
+      body {
+        font-family:
+          Inter,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          Roboto,
+          sans-serif;
+        background: #f8fafc;
+        color: #1f2937;
+        line-height: 1.6;
+      }
+
+      header {
+        background: #111827;
+        color: white;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+
+      .container {
+        width: min(1200px, 92%);
+        margin: auto;
+      }
+
+      nav {
+        height: 72px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .logo {
+        font-size: 22px;
+        font-weight: 700;
       }
 
       .nav-links {
-        display: none;
+        display: flex;
+        gap: 28px;
       }
-    }
-  </style>
-</head>
-<body>
 
-<header>
-  <div class="container">
-    <nav>
-      <div class="logo">Clario Demo</div>
+      .nav-links a {
+        text-decoration: none;
+        color: #d1d5db;
+        transition: 0.25s;
+      }
 
-      <div class="nav-links">
-        <a href="#">Home</a>
-        <a href="#">Features</a>
-        <a href="#">Pricing</a>
-        <a href="#">Contact</a>
+      .nav-links a:hover {
+        color: white;
+      }
+
+      .hero {
+        padding: 120px 20px;
+        text-align: center;
+        background: linear-gradient(135deg, #111827, #374151);
+        color: white;
+      }
+
+      .hero h1 {
+        font-size: 56px;
+        margin-bottom: 20px;
+      }
+
+      .hero p {
+        max-width: 700px;
+        margin: auto;
+        font-size: 20px;
+        color: #d1d5db;
+      }
+
+      .hero button {
+        margin-top: 35px;
+        padding: 14px 32px;
+        border: none;
+        border-radius: 8px;
+        background: white;
+        color: #111827;
+        font-size: 16px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: 0.2s;
+      }
+
+      .hero button:hover {
+        transform: translateY(-2px);
+      }
+
+      section {
+        padding: 80px 20px;
+      }
+
+      h2 {
+        text-align: center;
+        margin-bottom: 50px;
+        font-size: 36px;
+      }
+
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 24px;
+      }
+
+      .card {
+        background: white;
+        border-radius: 14px;
+        padding: 28px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+      }
+
+      .card h3 {
+        margin-bottom: 12px;
+      }
+
+      .card p {
+        color: #6b7280;
+      }
+
+      .about {
+        max-width: 850px;
+        margin: auto;
+        text-align: center;
+        color: #4b5563;
+        font-size: 18px;
+      }
+
+      footer {
+        background: #111827;
+        color: #9ca3af;
+        text-align: center;
+        padding: 40px 20px;
+      }
+
+      @media (max-width: 768px) {
+        .hero h1 {
+          font-size: 38px;
+        }
+
+        .hero p {
+          font-size: 17px;
+        }
+
+        .nav-links {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="container">
+        <nav>
+          <div class="logo">Clario Demo</div>
+
+          <div class="nav-links">
+            <a href="#">Home</a>
+            <a href="#">Features</a>
+            <a href="#">Pricing</a>
+            <a href="#">Contact</a>
+          </div>
+        </nav>
       </div>
-    </nav>
-  </div>
-</header>
+    </header>
 
-<section class="hero">
-  <div class="container">
-    <h1>Welcome to Clario</h1>
+    <section class="hero">
+      <div class="container">
+        <h1>Welcome to Clario</h1>
 
-    <p>
-      This page demonstrates the Clario AI widget. Click the chat bubble in the
-      bottom-right corner to start a conversation with the assistant.
-    </p>
-
-    <button>Get Started</button>
-  </div>
-</section>
-
-<section>
-  <div class="container">
-    <h2>Why Choose Us?</h2>
-
-    <div class="cards">
-      <div class="card">
-        <h3>⚡ Fast</h3>
         <p>
-          Built with modern technologies for exceptional performance and
-          reliability.
+          This page demonstrates the Clario AI widget. Click the chat bubble in
+          the bottom-right corner to start a conversation with the assistant.
         </p>
+
+        <button>Get Started</button>
       </div>
+    </section>
 
-      <div class="card">
-        <h3>🤖 AI Powered</h3>
-        <p>
-          Intelligent conversations powered by your custom AI assistant.
-        </p>
+    <section>
+      <div class="container">
+        <h2>Why Choose Us?</h2>
+
+        <div class="cards">
+          <div class="card">
+            <h3>⚡ Fast</h3>
+            <p>
+              Built with modern technologies for exceptional performance and
+              reliability.
+            </p>
+          </div>
+
+          <div class="card">
+            <h3>🤖 AI Powered</h3>
+            <p>
+              Intelligent conversations powered by your custom AI assistant.
+            </p>
+          </div>
+
+          <div class="card">
+            <h3>🔒 Secure</h3>
+            <p>
+              Enterprise-grade security with encrypted communication and safe
+              data handling.
+            </p>
+          </div>
+        </div>
       </div>
+    </section>
 
-      <div class="card">
-        <h3>🔒 Secure</h3>
-        <p>
-          Enterprise-grade security with encrypted communication and safe data
-          handling.
-        </p>
+    <section>
+      <div class="container">
+        <div class="about">
+          <h2>About</h2>
+
+          <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec
+            sollicitudin, erat vitae fermentum faucibus, lacus massa aliquam
+            odio, sed commodo turpis justo sed neque. Curabitur et lorem vel
+            erat pellentesque tristique. Vivamus sed mi at odio luctus aliquet.
+          </p>
+
+          <br />
+
+          <p>
+            Scroll around the page and verify that the Clario widget remains
+            fixed in the bottom-right corner of the screen.
+          </p>
+        </div>
       </div>
-    </div>
-  </div>
-</section>
+    </section>
 
-<section>
-  <div class="container">
-    <div class="about">
-      <h2>About</h2>
+    <footer>© 2026 Clario Demo. All rights reserved.</footer>
 
-      <p>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec
-        sollicitudin, erat vitae fermentum faucibus, lacus massa aliquam odio,
-        sed commodo turpis justo sed neque. Curabitur et lorem vel erat
-        pellentesque tristique. Vivamus sed mi at odio luctus aliquet.
-      </p>
-
-      <br>
-
-      <p>
-        Scroll around the page and verify that the Clario widget remains fixed
-        in the bottom-right corner of the screen.
-      </p>
-    </div>
-  </div>
-</section>
-
-<footer>
-  © 2026 Clario Demo. All rights reserved.
-</footer>
-
-<!-- Clario Widget -->
-<script
-  src="http://localhost:3000/widget.js"
-  data-key="cmreto9hl0001skvs79oad61w">
-</script>
-
-</body>
+    <!-- Clario Widget -->
+    <!-- Change it to exactly this: -->
+    <script src="http://localhost:3000/widget.js" data-key="cmrgdviem0005kgvsratzbog7"></script>
+  </body>
 </html>

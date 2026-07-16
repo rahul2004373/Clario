@@ -65,7 +65,7 @@ export class WidgetService {
       select: { embedPublicKey: true }
     });
 
-    const embedCode = `<script src="${env.WIDGET_SCRIPT_URL}" data-embed-key="${widget.embedPublicKey}"></script>`;
+    const embedCode = `<script src="${env.WIDGET_SCRIPT_URL}" data-key="${widget.embedPublicKey}"></script>`;
     return { embedCode };
   }
 
