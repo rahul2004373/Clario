@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { LogOut, User } from "lucide-react";
+import posthog from "posthog-js";
 import { clearTokens } from "@/lib/auth/api";
 import { useWorkspaceStore } from "@/store/workspaceStore";
 import { useSidebarState } from "@/hooks/use-sidebar-state";
@@ -17,6 +18,8 @@ export function SidebarFooter({ collapsed }: SidebarFooterProps) {
 
   function handleSignOut() {
     clearTokens();
+    posthog.reset();
+    posthog.capture("logout");
     useWorkspaceStore.getState().clear();
     closeMobile();
     router.push("/login");

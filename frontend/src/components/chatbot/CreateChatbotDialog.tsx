@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import posthog from "posthog-js";
 import { Loader2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,6 +51,7 @@ export function CreateChatbotDialog({
           ? { description: description.trim() }
           : {}),
       });
+      posthog.capture("chatbot_created");
       onClose();
       setName("");
       setSystemPrompt("");

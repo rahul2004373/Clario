@@ -686,3 +686,16 @@ model UsageEvent {
   @@index([workspaceId, createdAt])
   @@map("usage_events")
 }
+
+// ============================================================
+// 14. FEEDBACK
+// ============================================================
+
+model Feedback {
+  id        String   @id @default(cuid())
+  rating    String   
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+
+  @@map("feedbacks")
+}

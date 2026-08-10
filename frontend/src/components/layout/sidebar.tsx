@@ -3,6 +3,7 @@
 import * as React from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
+import posthog from "posthog-js";
 import {
   Bot,
   ChevronDown,
@@ -319,6 +320,8 @@ export function AppSidebar() {
                 <DropdownMenuItem
                   onClick={() => {
                     clearTokens();
+                    posthog.reset();
+                    posthog.capture("logout");
                     useWorkspaceStore.getState().clear();
                     router.push("/login");
                   }}

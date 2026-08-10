@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import posthog from "posthog-js";
 import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion";
 import {
   Menu,
@@ -816,6 +817,9 @@ export default function LandingPage() {
                   <div className="mt-8 flex items-center gap-3">
                     <Link
                       href={ctaHref}
+                      onClick={() => {
+                        if (!isLoggedIn) posthog.capture("get_started_clicked");
+                      }}
                       className="group relative inline-flex h-11 items-center justify-center overflow-hidden rounded-lg bg-[#0A0A0A] px-6 text-[14px] font-medium text-white transition-all active:scale-[0.97]"
                     >
                       <span
@@ -946,6 +950,9 @@ export default function LandingPage() {
                 <div className="mt-8">
                   <Link
                     href={ctaHref}
+                    onClick={() => {
+                      if (!isLoggedIn) posthog.capture("get_started_clicked");
+                    }}
                     className="group relative inline-flex h-11 items-center justify-center overflow-hidden rounded-lg px-6 text-[14px] font-medium text-white transition-all active:scale-[0.97]"
                     style={{
                       background: "linear-gradient(135deg, #F97316, #7C3AED)",

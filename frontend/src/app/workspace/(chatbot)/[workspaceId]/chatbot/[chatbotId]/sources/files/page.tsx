@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useParams } from "next/navigation";
+import posthog from "posthog-js";
 import { ChevronDown, ChevronRight, CheckCircle } from "lucide-react";
 import { useSourceStore } from "@/store/sourceStore";
 import { useWorkspaceRole } from "@/hooks/useWorkspaceRole";
@@ -42,6 +43,7 @@ export default function FilesPage() {
 
   const handleUpload = async (file: File) => {
     const source = await uploadSource(workspaceId, chatbotId, file);
+    posthog.capture("document_uploaded");
     setNewSourceIds((prev) => {
       const next = new Set(prev);
       next.add(source.id);

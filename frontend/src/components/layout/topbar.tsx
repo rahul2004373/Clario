@@ -23,6 +23,7 @@ import {
 import { useWorkspaceStore } from "@/store/workspaceStore";
 import { useUserStore } from "@/store/userStore";
 import { useChatbotStore } from "@/store/chatbotStore";
+import posthog from "posthog-js";
 import { clearTokens } from "@/lib/auth/api";
 import { CreateChatbotDialog } from "@/components/chatbot/CreateChatbotDialog";
 
@@ -296,6 +297,8 @@ export function Topbar() {
                     onClick={() => {
                       setAvatarOpen(false);
                       clearTokens();
+                      posthog.reset();
+                      posthog.capture("logout");
                       useWorkspaceStore.getState().clear();
                       router.push("/login");
                     }}

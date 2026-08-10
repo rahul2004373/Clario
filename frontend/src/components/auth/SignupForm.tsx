@@ -3,6 +3,7 @@
 import { useCallback, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import posthog from "posthog-js";
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, AlertCircle, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -56,6 +57,7 @@ export function SignupForm() {
       onSuccess: async (result) => {
         const authRes = result as { user: { id: string; email: string; name: string }; session: { access_token: string; refresh_token: string; expires_at: number } };
         storeTokens(authRes.session);
+        posthog.capture("signup");
         useUserStore.getState().fetchCurrentUser();
         try {
           const { workspaces } = await getWorkspaces();

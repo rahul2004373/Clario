@@ -13,7 +13,7 @@ import { analyticsRouter } from "../modules/analytics/analytics.routes";
 import { widgetRouter } from "../modules/widget/widget.routes";
 import { widgetPublicRouter } from "../modules/widget/widget-public.routes";
 import { chatPublicRouter } from "../modules/chat/chat-public.routes";
-
+import { feedbackRouter } from "../modules/feedback/feedback.routes";
 export const apiRouter = Router();
 
 apiRouter.use("/auth", authRouter);
@@ -35,6 +35,7 @@ apiRouter.use("/workspaces/:workspaceId/chatbots/:chatbotId/widget", widgetRoute
 
 // Public Endpoints
 apiRouter.use("/public/widget-config", widgetPublicRouter);
+apiRouter.use("/public/feedback", feedbackRouter);
 apiRouter.use("/public", chatPublicRouter);
 
 apiRouter.use("/chat", chatRouter);

@@ -2,6 +2,7 @@ import { prisma } from "../../../lib/prisma";
 import { IngestionStatus, SourceType as PrismaSourceType } from "@prisma/client";
 import { runIngestionPipeline } from "../../../rag/ingestion/pipeline";
 import { SourceType as RagSourceType } from "../../../rag/types";
+import { sendIngestionSuccessEmail } from "../../../lib/email";
 
 // In a real application, you'd probably run this in a separate worker process.
 // We can start a lightweight polling loop here for demonstration.
@@ -106,6 +107,11 @@ export class IngestionWorker {
         })
       ]);
       console.log(`[${new Date().toISOString()}] [Worker] Job ${job.id} COMPLETED. Generated ${result.chunkCount} chunks.`);
+      
+      // Send success email asynchronously
+      sendIngestionSuccessEmail(job.source.name, result.chunkCount).catch((err) => {
+        console.error("Failed to send ingestion success email:", err);
+      });
 
     } catch (error: any) {
       console.error(`[${new Date().toISOString()}] [Worker] Job ${job.id} FAILED:`, error);

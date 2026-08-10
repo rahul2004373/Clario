@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Loader2, ArrowLeft } from "lucide-react";
+import posthog from "posthog-js";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -75,6 +76,7 @@ export default function CreateWorkspacePage() {
     setError(null);
     try {
       const workspace = await createWorkspace({ name: data.name });
+      posthog.capture("workspace_created");
       router.push(`/workspace/${workspace.id}/agents`);
     } catch (err) {
       setError(

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import posthog from "posthog-js";
 import {
   ChevronDown,
   Play,
@@ -28,16 +29,19 @@ function NavItem({
   label,
   active,
   badge,
+  onClick,
 }: {
   href: string;
   icon: typeof ChevronDown;
   label: string;
   active: boolean;
   badge?: string;
+  onClick?: () => void;
 }) {
   return (
     <Link
       href={href}
+      onClick={onClick}
       className={cn(
         "flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors",
         active
@@ -132,6 +136,7 @@ export function ChatbotSidebar({
           icon={Play}
           label="Playground"
           active={isActive(`${base}/playground`)}
+          onClick={() => posthog.capture("playground_opened")}
         />
       </nav>
 
@@ -189,6 +194,7 @@ export function ChatbotSidebar({
           icon={Puzzle}
           label="Widgets"
           active={isActive(`${base}/widgets`)}
+          onClick={() => posthog.capture("widget_opened")}
         />
       </div>
 

@@ -1,15 +1,17 @@
+import "newrelic";
 import { IngestionWorker } from "./modules/sources/jobs/worker";
 import express from "express";
+import { logger } from "./logger";
 
 process.on("unhandledRejection", (error) => {
-  console.error("[Worker UnhandledRejection]", error);
+  logger.error({ err: error }, "[Worker UnhandledRejection]");
 });
 
 process.on("uncaughtException", (error) => {
-  console.error("[Worker UncaughtException]", error);
+  logger.error({ err: error }, "[Worker UncaughtException]");
 });
 
-console.log("[Worker] Starting background process...");
+logger.info("[Worker] Starting background process...");
 IngestionWorker.startPolling();
 
 // --- DUMMY HTTP SERVER FOR RENDER ---
@@ -27,5 +29,5 @@ app.get("/health", (req, res) => {
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
-  console.log(`[Worker] Dummy HTTP server listening on port ${PORT} for Render health checks.`);
+  logger.info(`[Worker] Dummy HTTP server listening on port ${PORT} for Render health checks.`);
 });

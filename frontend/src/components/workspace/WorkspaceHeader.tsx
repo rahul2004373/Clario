@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useWorkspaceStore } from "@/store/workspaceStore";
 import { clearTokens } from "@/lib/auth/api";
+import posthog from "posthog-js";
 import { WorkspaceSwitcher } from "@/components/workspace/WorkspaceSwitcher";
 
 export function WorkspaceHeader() {
@@ -32,6 +33,8 @@ export function WorkspaceHeader() {
 
   function handleSignOut() {
     clearTokens();
+    posthog.reset();
+    posthog.capture("logout");
     useWorkspaceStore.getState().clear();
     router.push("/login");
   }

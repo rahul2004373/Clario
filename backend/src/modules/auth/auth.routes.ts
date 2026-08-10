@@ -1,11 +1,11 @@
 import { Router } from "express";
-import { 
-  signup, 
-  login, 
-  getGoogleOAuthUrl, 
-  getProfile, 
-  updateProfile, 
-  syncUser 
+import {
+  signup,
+  login,
+  getGoogleOAuthUrl,
+  getProfile,
+  updateProfile,
+  syncUser
 } from "./auth.controller";
 import { requireAuth } from "./auth.middleware";
 
