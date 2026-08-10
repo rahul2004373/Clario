@@ -10,7 +10,8 @@ const transporter = nodemailer.createTransport({
 });
 
 export const sendIngestionSuccessEmail = async (documentName: string, chunkCount: number, recipientEmail: string = "kanojiarahul2004@gmail.com") => {
-  await transporter.sendMail({
+  try {
+    await transporter.sendMail({
   from: `"Clario Ingestion" <${process.env.SMTP_USER}>`,
   to: recipientEmail,
   subject: `Successful Upload: ${documentName}`,
