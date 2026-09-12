@@ -25,6 +25,7 @@ import { useUserStore } from "@/store/userStore";
 import { useWorkspaceStore } from "@/store/workspaceStore";
 import { UserAvatar } from "@/components/ui/user-avatar";
 import { SmoothScrollProvider, useLenis } from "@/components/SmoothScrollProvider";
+import { FeedbackWidget } from "@/components/ui/feedback-widget";
 
 /* ───────────────────────────────────────────────
    Chat Demo Widget — auto-looping scripted demo
@@ -1017,6 +1018,10 @@ export default function LandingPage() {
             </div>
           </div>
         </footer>
+
+        <div className="fixed bottom-6 right-6 z-50">
+          <FeedbackWidget />
+        </div>
       </div>
     </SmoothScrollProvider>
   );

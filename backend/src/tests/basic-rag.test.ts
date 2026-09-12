@@ -44,7 +44,7 @@ async function main() {
   });
 
   console.log("Context Chunks Retrieved:", queryResult.context.length);
-  queryResult.context.forEach((c, idx) => {
+  queryResult.context.forEach((c: any, idx: any) => {
     console.log(`  [Chunk ${idx + 1}] Similarity: ${c.similarity.toFixed(4)}`);
     console.log(`    Content: "${c.content.replace(/\n/g, " ")}"`);
   });

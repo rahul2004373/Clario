@@ -3,11 +3,10 @@ import { supabaseAdmin } from "../../lib/supabase";
 
 export class AuthService {
   static async signup(email: string, password: string, name?: string) {
-    // 1. Create user in Supabase
     const { data, error } = await supabaseAdmin.auth.admin.createUser({
       email,
       password,
-      email_confirm: true, // Auto-confirm for now, can be configured in Supabase
+      email_confirm: true,
       user_metadata: { name }
     });
 
@@ -22,7 +21,6 @@ export class AuthService {
       throw new Error("Failed to create user in Supabase");
     }
 
-    // 2. Create user in Prisma
     const dbUser = await prisma.user.create({
       data: {
         id: data.user.id,
@@ -31,9 +29,6 @@ export class AuthService {
       }
     });
 
-    // To get a session directly after admin.createUser, we need to sign in.
-    // Alternatively, just return the user and tell frontend to log in.
-    // Let's do a sign in to return the token immediately.
     const signInResult = await supabaseAdmin.auth.signInWithPassword({
       email,
       password
@@ -62,7 +57,7 @@ export class AuthService {
     // Sync just in case they were created outside (e.g. Supabase dashboard)
     const user = data.user;
     const name = user.user_metadata?.name || user.user_metadata?.full_name || "User";
-    
+
     const dbUser = await prisma.user.upsert({
       where: { id: user.id },
       update: { email: user.email },
@@ -99,18 +94,11 @@ export class AuthService {
     return data.url;
   }
 
-  // When frontend uses standard OAuth, it actually doesn't use the backend callback 
-  // if doing PKCE correctly, but if we do it via backend we exchange the code.
-  // Actually, Supabase handles the callback if we use the default flow and redirects to the frontend.
-  // The frontend then parses the hash. So the backend doesn't necessarily need a /callback route
-  // unless we want to handle the token exchange securely on the server.
-  // For standard Supabase, returning the OAuth URL to the frontend is the most standard approach.
-
   static async getProfile(userId: string) {
     const user = await prisma.user.findUnique({
       where: { id: userId }
     });
-    
+
     if (!user) throw new Error("User not found");
     return user;
   }

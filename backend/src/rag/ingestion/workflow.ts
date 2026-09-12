@@ -1,4 +1,3 @@
-import { traceRagFunction } from "../observability";
 import type { EmbeddedChunk, IngestionInput, IngestionResult, RawChunk } from "../types";
 import { chunkText } from "./chunker";
 import { cleanText } from "./cleaner";
@@ -13,10 +12,10 @@ export async function extractDocumentText(input: IngestionInput): Promise<import
   const parsedDocs = rawText
     ? [{ text: rawText }]
     : await parseSource({
-        type: input.sourceType,
-        rawContentUrl: sourceUrl ?? input.rawContentUrl ?? null,
-        rawText: input.rawText ?? null
-      });
+      type: input.sourceType,
+      rawContentUrl: sourceUrl ?? input.rawContentUrl ?? null,
+      rawText: input.rawText ?? null
+    });
 
   return parsedDocs.map(doc => ({
     ...doc,
@@ -68,8 +67,4 @@ async function runDocumentIngestionWorkflowImpl(input: IngestionInput): Promise<
   };
 }
 
-export const runDocumentIngestionWorkflow = traceRagFunction(
-  "rag.runDocumentIngestionWorkflow",
-  "chain",
-  runDocumentIngestionWorkflowImpl
-);
+export const runDocumentIngestionWorkflow = runDocumentIngestionWorkflowImpl;

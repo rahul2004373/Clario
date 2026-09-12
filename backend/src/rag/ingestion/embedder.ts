@@ -1,5 +1,4 @@
 import { env } from "../../config/env";
-import { traceRagFunction } from "../observability";
 import type { EmbeddedChunk, RawChunk } from "../types";
 
 function ensureEmbeddingUrl() {
@@ -22,7 +21,7 @@ async function fetchEmbedding(content: string): Promise<number[]> {
   ensureEmbeddingUrl();
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 30000);
+  const timeoutId = setTimeout(() => controller.abort(), 120000);
 
   let response: Response;
   try {
@@ -94,5 +93,5 @@ async function embedChunksImpl(chunks: RawChunk[], batchSize = env.RAG_EMBED_BAT
   }));
 }
 
-export const embedText = traceRagFunction("rag.embedText", "tool", fetchEmbedding);
-export const embedChunks = traceRagFunction("rag.embedChunks", "tool", embedChunksImpl);
+export const embedText = fetchEmbedding;
+export const embedChunks = embedChunksImpl;

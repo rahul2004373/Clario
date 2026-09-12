@@ -126,13 +126,13 @@ export class ChatService {
 
       // Stage 1: Retrieve top 20 (No similarity threshold to avoid empty results)
       const rawChunks = await similaritySearch(queryEmbedding, messageContent, workspaceId, sourceIds, 20, 0.0);
-      top10SourceIds = rawChunks.map(c => c.sourceId);
+      top10SourceIds = rawChunks.map((c: any) => c.sourceId);
       
       console.log(`\nTop Vector & BM25 Results:`);
       if (rawChunks.length === 0) {
         console.log(`  No chunks found in database for these sources.`);
       } else {
-        rawChunks.forEach((chunk, idx) => {
+        rawChunks.forEach((chunk: any, idx: any) => {
           const preview = chunk.content.substring(0, 80).replace(/\n/g, ' ') + '...';
           console.log(`  ${idx + 1}. Similarity: ${chunk.similarity.toFixed(4)} | Chunk ID: ${chunk.id?.substring(0,8)} | Source: ${chunk.sourceId}\n     Preview: ${preview}`);
         });
@@ -154,22 +154,22 @@ export class ChatService {
         }
 
         const thresholdScore = maxScore * 0.6;
-        const validSources = new Set(
-          Object.entries(sourceScores)
-            .filter(([_, score]) => score >= thresholdScore)
-            .map(([sId, _]) => sId)
-        );
+      const validSources = new Set(
+        Object.entries(sourceScores)
+          .filter(([_, score]) => score >= thresholdScore)
+          .map(([sId, _]) => sId)
+      );
 
         // Take top 5 valid chunks
         retrievedChunks = rawChunks
-          .filter(c => validSources.has(c.sourceId))
-          .sort((a, b) => b.similarity - a.similarity)
+          .filter((c: any) => validSources.has(c.sourceId))
+          .sort((a: any, b: any) => b.similarity - a.similarity)
           .slice(0, 5);
 
-        rerankedScores = retrievedChunks.map(c => c.similarity);
+        rerankedScores = retrievedChunks.map((c: any) => c.similarity);
         
         console.log(`\nFinal Filtered Chunks (Top 5 from valid sources):`);
-        retrievedChunks.forEach((chunk, idx) => {
+        retrievedChunks.forEach((chunk: any, idx: any) => {
           console.log(`  ${idx + 1}. Similarity: ${chunk.similarity.toFixed(4)} | Source: ${chunk.sourceId}`);
         });
       }

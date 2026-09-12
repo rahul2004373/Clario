@@ -1,11 +1,16 @@
 import express from "express";
 import cors from "cors";
+import morgan from "morgan";
 import { apiRouter } from "./routes/api.routes";
-import { requestLogger } from "./middleware/request-logger";
+import { errorMiddleware } from "./middleware/error.middleware";
 
 const app = express();
 
-app.use(requestLogger);
+if (process.env.NODE_ENV !== "production") {
+  app.use(morgan("dev"));
+} else {
+  app.use(morgan("dev"));
+}
 
 app.use(cors());
 app.use(express.json());
@@ -27,16 +32,7 @@ app.use((_request, response) => {
   });
 });
 
-app.use((error: unknown, _request: express.Request, response: express.Response, _next: express.NextFunction) => {
-  const message = error instanceof Error ? error.message : "Internal Server Error";
-  const statusCode =
-    typeof error === "object" && error !== null && "statusCode" in error && typeof (error as { statusCode?: unknown }).statusCode === "number"
-      ? (error as { statusCode: number }).statusCode
-      : 500;
-  console.error("[AppError]", error);
-  response.status(statusCode).json({
-    error: message
-  });
-});
+app.use(errorMiddleware);
 
 export default app;
+

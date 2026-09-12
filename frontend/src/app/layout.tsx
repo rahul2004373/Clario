@@ -5,7 +5,6 @@ import { Analytics } from "@vercel/analytics/next";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { CSPostHogProvider } from "./providers/PostHogProvider";
 import { PostHogPageView } from "./providers/PostHogPageView";
-import { FeedbackWidget } from "@/components/ui/feedback-widget";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -40,10 +39,6 @@ export default function RootLayout({
           </Suspense>
 
           <TooltipProvider delay={300}>{children}</TooltipProvider>
-
-          <div className="fixed bottom-6 right-6 z-50">
-            <FeedbackWidget />
-          </div>
 
           <Analytics />
         </CSPostHogProvider>

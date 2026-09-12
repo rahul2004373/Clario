@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { ChatService } from "./chat.service";
 import { OrchestratorService } from "./orchestrator/orchestrator.service";
-import { RunTree } from "langsmith";
+
 import { env } from "../../config/env";
 
 export const createSession = async (req: Request, res: Response) => {
@@ -88,25 +88,7 @@ export const streamMessage = async (req: Request, res: Response) => {
       message
     );
 
-    let trace: RunTree | undefined;
-    if (env.LANGSMITH_TRACING && env.LANGSMITH_API_KEY) {
-      trace = new RunTree({
-        name: "ChatStream",
-        run_type: "chain",
-        inputs: {
-          user_message: message,
-          session_id: actualSessionId,
-          chatbot_id: chatbotId,
-          retrieved_chunk_ids: retrievedChunkIds,
-          source_ids: retrievedChunks.map((c: any) => c.sourceId),
-          similarity_scores: retrievedChunks.map((c: any) => c.similarity),
-          chunk_previews: retrievedChunks.map((c: any) => c.content.substring(0, 150) + "..."),
-          final_system_prompt: orchestratorPayload.messages[0].content
-        },
-        project_name: env.LANGSMITH_PROJECT || "default"
-      });
-      await trace.postRun();
-    }
+
 
     res.setHeader("Content-Type", "text/event-stream");
     res.setHeader("Cache-Control", "no-cache");
@@ -139,17 +121,8 @@ export const streamMessage = async (req: Request, res: Response) => {
 
       await ChatService.saveAssistantMessage(actualSessionId, fullResponse, retrievedChunkIds);
 
-      if (trace) {
-        await trace.end({
-          outputs: { final_answer: fullResponse, ...metadata }
-        });
-        await trace.patchRun();
-      }
+
     } catch (err: any) {
-      if (trace) {
-        await trace.end({ error: err.message });
-        await trace.patchRun();
-      }
       throw err;
     }
 
@@ -198,25 +171,7 @@ export const nonStreamMessage = async (req: Request, res: Response) => {
       message
     );
 
-    let trace: RunTree | undefined;
-    if (env.LANGSMITH_TRACING && env.LANGSMITH_API_KEY) {
-      trace = new RunTree({
-        name: "ChatMessage",
-        run_type: "chain",
-        inputs: {
-          user_message: message,
-          session_id: actualSessionId,
-          chatbot_id: chatbotId,
-          retrieved_chunk_ids: retrievedChunkIds,
-          source_ids: retrievedChunks.map((c: any) => c.sourceId),
-          similarity_scores: retrievedChunks.map((c: any) => c.similarity),
-          chunk_previews: retrievedChunks.map((c: any) => c.content.substring(0, 150) + "..."),
-          final_system_prompt: orchestratorPayload.messages[0].content
-        },
-        project_name: env.LANGSMITH_PROJECT || "default"
-      });
-      await trace.postRun();
-    }
+
 
     try {
       let assistantMessage = "";
@@ -235,19 +190,10 @@ export const nonStreamMessage = async (req: Request, res: Response) => {
 
       await ChatService.saveAssistantMessage(actualSessionId, assistantMessage, retrievedChunkIds);
 
-      if (trace) {
-        await trace.end({
-          outputs: { final_answer: assistantMessage, ...metadata }
-        });
-        await trace.patchRun();
-      }
+
 
       res.json({ response: assistantMessage, sessionId: actualSessionId });
     } catch (err: any) {
-      if (trace) {
-        await trace.end({ error: err.message });
-        await trace.patchRun();
-      }
       throw err;
     }
   } catch (error: any) {

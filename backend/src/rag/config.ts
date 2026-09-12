@@ -10,10 +10,6 @@ export const ragConfig = {
   supabaseUrl: env.SUPABASE_URL,
   supabaseServiceRoleKey: env.SUPABASE_SERVICE_ROLE_KEY,
   supabaseTable: env.SUPABASE_CHUNKS_TABLE,
-  geminiApiKey: env.GEMINI_API_KEY,
-  geminiModelName: env.GEMINI_MODEL_NAME,
-  langsmithTracing: env.LANGSMITH_TRACING,
-  langsmithApiKey: env.LANGSMITH_API_KEY,
-  langsmithProject: env.LANGSMITH_PROJECT,
-  langsmithEndpoint: env.LANGSMITH_ENDPOINT
+  openRouterApiKey: env.OPENROUTER_API_KEY
 };
+

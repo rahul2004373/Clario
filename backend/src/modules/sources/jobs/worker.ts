@@ -4,9 +4,8 @@ import { runIngestionPipeline } from "../../../rag/ingestion/pipeline";
 import { SourceType as RagSourceType } from "../../../rag/types";
 import { sendIngestionSuccessEmail } from "../../../lib/email";
 
-// In a real application, you'd probably run this in a separate worker process.
-// We can start a lightweight polling loop here for demonstration.
-const MAX_CONCURRENT_JOBS = 2;
+
+const MAX_CONCURRENT_JOBS = 1;
 const POLL_INTERVAL_MS = 5000;
 let activeJobs = 0;
 
@@ -74,7 +73,7 @@ export class IngestionWorker {
       }
 
       console.log(`[${new Date().toISOString()}] [Worker] Processing Job ${job.id} for Source ${job.source.name}...`);
-      
+
       const result = await runIngestionPipeline({
         sourceId: job.sourceId,
         workspaceId: (job.source as any).chatbot.workspaceId,
@@ -99,7 +98,7 @@ export class IngestionWorker {
         }),
         prisma.source.update({
           where: { id: job.sourceId },
-          data: { 
+          data: {
             ingestionStatus: IngestionStatus.COMPLETED,
             chunkCount: result.chunkCount,
             lastIngestedAt: new Date()
@@ -107,7 +106,7 @@ export class IngestionWorker {
         })
       ]);
       console.log(`[${new Date().toISOString()}] [Worker] Job ${job.id} COMPLETED. Generated ${result.chunkCount} chunks.`);
-      
+
       // Send success email asynchronously
       sendIngestionSuccessEmail(job.source.name, result.chunkCount).catch((err) => {
         console.error("Failed to send ingestion success email:", err);
@@ -115,20 +114,20 @@ export class IngestionWorker {
 
     } catch (error: any) {
       console.error(`[${new Date().toISOString()}] [Worker] Job ${job.id} FAILED:`, error);
-      
+
       // 4. Mark job as FAILED
       await prisma.$transaction([
         prisma.ingestionJob.update({
           where: { id: job.id },
-          data: { 
-            status: IngestionStatus.FAILED, 
+          data: {
+            status: IngestionStatus.FAILED,
             error: error.message,
             completedAt: new Date()
           }
         }),
         prisma.source.update({
           where: { id: job.sourceId },
-          data: { 
+          data: {
             ingestionStatus: IngestionStatus.FAILED,
             ingestionError: error.message
           }

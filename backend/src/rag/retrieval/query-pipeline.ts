@@ -1,5 +1,4 @@
 import { embedText } from "../ingestion/embedder";
-import { traceRagFunction } from "../observability";
 import type { QueryInput, QueryResult, QueryResultStream } from "../types";
 import { buildContext } from "./context-builder";
 import { generateRoutedResponse, generateRoutedResponseStream } from "./llm-router";
@@ -16,7 +15,7 @@ async function runQueryPipelineImpl(input: QueryInput): Promise<QueryResult> {
     input.threshold
   );
 
-  const context = matches.map((match) => ({
+  const context = matches.map((match: any) => ({
     sourceId: match.sourceId,
     content: match.content,
     similarity: match.similarity,
@@ -52,14 +51,14 @@ async function runQueryPipelineStreamImpl(input: QueryInput): Promise<QueryResul
     input.threshold
   );
 
-  const context = matches.map((match) => ({
+  const context = matches.map((match: any) => ({
     sourceId: match.sourceId,
     content: match.content,
     similarity: match.similarity,
     metadata: match.metadata
   }));
 
-  const tokenStream = generateRoutedResponseStream({
+  const tokenStream = await generateRoutedResponseStream({
     question: input.query,
     context: await buildContext(context),
     systemPrompt: input.systemPrompt,
@@ -77,6 +76,6 @@ async function runQueryPipelineStreamImpl(input: QueryInput): Promise<QueryResul
   };
 }
 
-export const runQueryPipeline = traceRagFunction("rag.runQueryPipeline", "chain", runQueryPipelineImpl);
-export const runQueryPipelineStream = traceRagFunction("rag.runQueryPipelineStream", "chain", runQueryPipelineStreamImpl);
+export const runQueryPipeline = runQueryPipelineImpl;
+export const runQueryPipelineStream = runQueryPipelineStreamImpl;
 

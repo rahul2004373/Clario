@@ -1,6 +1,5 @@
 import OpenAI from "openai";
 import { env } from "../../config/env";
-import { traceRagFunction } from "../observability";
 
 export interface LlmResponseInput {
   question: string;
@@ -16,49 +15,32 @@ export interface LlmResponseInput {
 
 interface ProviderConfig {
   id: string;
-  providerType: "gemini" | "bynara" | "nvidia";
+  providerType: "openrouter";
   client: OpenAI;
   modelName: string;
 }
 
 // Initialize API Clients
-const geminiClient = env.GEMINI_API_KEY ? new OpenAI({
-  apiKey: env.GEMINI_API_KEY,
-  baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/"
-}) : null;
-
-const bynaraClient = env.BYNARA_API_KEY ? new OpenAI({
-  apiKey: env.BYNARA_API_KEY,
-  baseURL: env.BYNARA_BASE_URL,
-  timeout: env.BYNARA_TIMEOUT_MS
-}) : null;
-
-const nvidiaClient = env.NVIDIA_API_KEY ? new OpenAI({
-  apiKey: env.NVIDIA_API_KEY,
-  baseURL: "https://integrate.api.nvidia.com/v1"
+const openrouterClient = env.OPENROUTER_API_KEY ? new OpenAI({
+  apiKey: env.OPENROUTER_API_KEY,
+  baseURL: "https://openrouter.ai/api/v1",
+  defaultHeaders: {
+    "HTTP-Referer": "https://clario.chat", // Optional, for including your app on openrouter.ai rankings.
+    "X-Title": "Clario RAG Engine", // Optional. Shows in rankings on openrouter.ai.
+  }
 }) : null;
 
 // Construct the Fallback Chain exactly as specified
 export const fallbackChain: ProviderConfig[] = [];
 
-if (geminiClient) {
-  fallbackChain.push({ id: "gemini-2.5-flash", providerType: "gemini", client: geminiClient, modelName: "gemini-2.5-flash" });
-  fallbackChain.push({ id: "gemini-2.5-flash-lite", providerType: "gemini", client: geminiClient, modelName: "gemini-2.5-flash-lite" });
-  fallbackChain.push({ id: "gemini-2.0-flash", providerType: "gemini", client: geminiClient, modelName: "gemini-2.0-flash" });
-}
-
-if (bynaraClient) {
-  fallbackChain.push({ id: "claude-sonnet-4.5", providerType: "bynara", client: bynaraClient, modelName: "claude-sonnet-4.5" });
-  fallbackChain.push({ id: "claude-haiku-4.5", providerType: "bynara", client: bynaraClient, modelName: "claude-haiku-4.5" });
-}
-
-if (nvidiaClient) {
-  fallbackChain.push({ id: "deepseek-v4-flash", providerType: "nvidia", client: nvidiaClient, modelName: "deepseek-ai/deepseek-v4-flash" });
-}
-
-if (bynaraClient) {
-  fallbackChain.push({ id: "mistral-large", providerType: "bynara", client: bynaraClient, modelName: "mistral-large" });
-  fallbackChain.push({ id: "mistral-medium-3-5", providerType: "bynara", client: bynaraClient, modelName: "mistral-medium-3-5" });
+if (openrouterClient) {
+  fallbackChain.push({ id: "nemotron-3.5-lightning", providerType: "openrouter", client: openrouterClient, modelName: "nvidia/nemotron-3.5-lightning:free" });
+  fallbackChain.push({ id: "gemma-4-31b", providerType: "openrouter", client: openrouterClient, modelName: "google/gemma-4-31b-it:free" });
+  fallbackChain.push({ id: "nemotron-3-super", providerType: "openrouter", client: openrouterClient, modelName: "nvidia/nemotron-3-super-120b-a12b:free" });
+  fallbackChain.push({ id: "gemma-4-26b", providerType: "openrouter", client: openrouterClient, modelName: "google/gemma-4-26b-a4b-it:free" });
+  fallbackChain.push({ id: "nemotron-3-ultra", providerType: "openrouter", client: openrouterClient, modelName: "nvidia/nemotron-3-ultra-550b-a55b:free" });
+  fallbackChain.push({ id: "inkling-small", providerType: "openrouter", client: openrouterClient, modelName: "thinkingmachines/inkling-small:free" });
+  fallbackChain.push({ id: "laguna-s", providerType: "openrouter", client: openrouterClient, modelName: "poolside/laguna-s-2.1:free" });
 }
 
 function constructPrompt(input: LlmResponseInput) {
@@ -166,14 +148,6 @@ export async function* generateLlmResponseStreamImpl(input: LlmResponseInput): A
   throw lastError || new Error("All LLM providers failed.");
 }
 
-export const generateRoutedResponse = traceRagFunction(
-  "rag.generateRoutedResponse",
-  "llm",
-  generateLlmResponseImpl
-);
+export const generateRoutedResponse = generateLlmResponseImpl;
 
-export const generateRoutedResponseStream = traceRagFunction(
-  "rag.generateRoutedResponseStream",
-  "llm",
-  generateLlmResponseStreamImpl
-);
+export const generateRoutedResponseStream = generateLlmResponseStreamImpl;

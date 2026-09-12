@@ -1,5 +1,4 @@
 import nodemailer from "nodemailer";
-import { logger } from "../logger";
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -99,8 +98,8 @@ This email was sent automatically by Clario.
 </html>
 `,
 });
-    logger.info({ documentName, recipientEmail }, "Ingestion success email sent.");
+    console.log("Ingestion success email sent.", { documentName, recipientEmail });
   } catch (error) {
-    logger.error({ err: error, documentName }, "Failed to send ingestion success email.");
+    console.error("Failed to send ingestion success email.", { err: error, documentName });
   }
 };

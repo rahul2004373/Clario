@@ -28,7 +28,7 @@ export const uploadFileSource = async (req: Request, res: Response) => {
     const bucket = env.SUPABASE_STORAGE_BUCKET || "rag-files";
     const fileExt = file.originalname.split(".").pop();
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
-    
+
     const { data: uploadData, error: uploadError } = await supabaseAdmin
       .storage
       .from(bucket)
@@ -47,7 +47,7 @@ export const uploadFileSource = async (req: Request, res: Response) => {
 
     const source = await SourcesService.createSource(chatbotId as string, {
       name,
-      type, 
+      type,
       fileUrl,
       fileSize: file.size
     });

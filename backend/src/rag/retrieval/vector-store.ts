@@ -1,6 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
 import { env } from "../../config/env";
-import { traceRagFunction } from "../observability";
 import type { EmbeddedChunk, SimilarityResult } from "../types";
 
 let supabaseClient: any = null;
@@ -116,6 +115,6 @@ async function similaritySearchImpl(
   }));
 }
 
-export const upsertChunks = traceRagFunction("rag.upsertChunks", "tool", upsertChunksImpl);
-export const deleteChunksBySource = traceRagFunction("rag.deleteChunksBySource", "tool", deleteChunksBySourceImpl);
-export const similaritySearch = traceRagFunction("rag.similaritySearch", "tool", similaritySearchImpl);
+export const upsertChunks = upsertChunksImpl;
+export const deleteChunksBySource = deleteChunksBySourceImpl;
+export const similaritySearch = similaritySearchImpl;
